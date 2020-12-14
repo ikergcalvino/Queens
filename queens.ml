@@ -1,15 +1,15 @@
-let attack (i1,j1) (i2,j2) = 
+(* let attack (i1,j1) (i2,j2) = 
     (* la reina en la casilla (i1,j1) amenaza la casilla (i2,j2)? *)
     i1 = i2 || 
     j1 = j2 ||
-    abs (i2-i1) = abs (j2-j1);;
+    abs (i2-i1) = abs (j2-j1);; *)
 	
-let rec compatible p l = 
+(* let rec compatible p l = 
     (* una reina en la casilla p estaría a salvo de todas las de la lista l? *)
-    not (List.exists (attack p) l);; 
+    not (List.exists (attack p) l);; *)
 	
-let simplify sol = 
-    List.map snd (List.sort compare sol);;
+(* let simplify sol = 
+    List.map snd (List.sort compare sol);; *)
 
 (* Para ahorrar espacio, simplify toma una solución al problema expresada como lista de 
    pares (fila, columna) y la transforma en la lista de columnas que corresponden a cada 
@@ -25,12 +25,26 @@ let expand l = List.init (List.length l) (fun i -> (i+1, List.nth l i));;
 (* definición obviamente mejorable *)
 *)
   
-let all_queens_sol n = 
+(* let all_queens_sol n = 
     let rec search_all_from path (i,j) =
         if i > n then [simplify path] 
         else if j > n then []
         else if compatible (i,j) path then
              search_all_from ((i,j)::path) (i+1,1) @ search_all_from path (i,j+1)
              else search_all_from path (i,j+1)
-    in search_all_from [] (1,1);;  
+    in search_all_from [] (1,1);; *)
 
+let possible row col used_rows usedD1 usedD2 =
+    not (List.mem row used_rows
+        || List.mem (row + col) usedD1
+        || List.mem (row - col) usedD2)
+      
+let all_queens_sol n =
+    let rec aux row col used_rows usedD1 usedD2 =
+        if col > n
+            then [List.rev used_rows]
+            else (if row < n then aux (row + 1) col used_rows usedD1 usedD2 else [])
+            @ (if possible row col used_rows usedD1 usedD2
+                then aux 1 (col + 1) (row :: used_rows) (row + col :: usedD1) (row - col :: usedD2)
+                else [])
+    in aux 1 1 [] [] [];;
